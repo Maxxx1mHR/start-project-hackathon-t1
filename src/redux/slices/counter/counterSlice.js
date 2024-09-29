@@ -4,10 +4,8 @@ import axios from 'axios';
 const initialState = {
   value: 0,
   items: [],
-  fetchStatus: 'idle', // idle | loading | succeeded | failed
-  addStatus: 'idle', // idle | loading | succeeded | failed
+  fetchStatus: 'idle',
   fetchError: null,
-  addError: null,
 };
 
 const counterSlice = createSlice({
@@ -22,7 +20,6 @@ const counterSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Обработка статусов для fetchData
     builder
       .addCase(fetchData.pending, (state) => {
         state.fetchStatus = 'loading';
@@ -36,21 +33,6 @@ const counterSlice = createSlice({
         state.fetchStatus = 'failed';
         state.fetchError = action.payload;
       });
-
-    // Обработка статусов для addPerson
-    builder
-      .addCase(addPerson.pending, (state) => {
-        state.addStatus = 'loading';
-        state.addError = null;
-      })
-      .addCase(addPerson.fulfilled, (state, action) => {
-        state.addStatus = 'succeeded';
-        state.items.push(action.payload.name); // Добавляем новую персону в items
-      })
-      .addCase(addPerson.rejected, (state, action) => {
-        state.addStatus = 'failed';
-        state.addError = action.payload;
-      });
   },
 });
 
@@ -60,22 +42,6 @@ export const fetchData = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get('http://localhost:3000/person');
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-// Асинхронный запрос для добавления новой персоны
-export const addPerson = createAsyncThunk(
-  'counter/addPerson',
-  async (newPerson, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        'http://localhost:3000/person',
-        newPerson
-      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
